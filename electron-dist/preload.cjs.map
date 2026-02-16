@@ -1,0 +1,1 @@
+{"version":3,"file":"preload.cjs","sourceRoot":"","sources":["../electron/preload.cts"],"names":[],"mappings":";;AAAA,uCAAyC;AAEzC,wBAAa,CAAC,iBAAiB,CAAC,KAAK,EAAE;IACrC,KAAK,EAAE,GAAG,EAAE,CAAC,qBAAqB;CACnC,CAAC,CAAC"}
