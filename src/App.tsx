@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 // Define a TypeScript type for the Electron API exposed in preload
 //Global declaration for Electron API
@@ -6,25 +6,36 @@ import React from "react";
 // Now window.api.hello() is type-checked.
 declare global {
   interface Window {
-    api: {
+    api?: {
       hello: () => string;
+      sendInput: (text: string) => void;
     };
   }
 }
 
 const App: React.FC = () => {
-  const sayHello = () => {
-    if (window.api && window.api.hello) {
-      alert(window.api.hello());
-    } else {
-      alert("window.api.hello is undefined!");
-    } 
+  const [userText, setUserText] = useState<string>("");
+
+  const alertUserText = () => {
+    if (window.api && window.api.sendInput) {
+      window.api.sendInput(userText);
+    }
+    alert(userText);
   };
 
   return (
     <div>
       <h1>Hello React + Electron 🚀</h1>
-      <button onClick={sayHello}>Test Electron</button>
+
+      <div className="card">
+        <input
+          type="text"
+          value={userText}
+          onChange={(e) => setUserText(e.target.value)}
+          placeholder="Type something to alert"
+        />
+        <button onClick={alertUserText}>Alert Input</button>
+      </div>
     </div>
   );
 };

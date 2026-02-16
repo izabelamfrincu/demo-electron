@@ -1,5 +1,5 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld("api", {
-  hello: () => "Hello from Electron"
+  sendInput: (text: string) => ipcRenderer.send("renderer:user-input", text)
 });
