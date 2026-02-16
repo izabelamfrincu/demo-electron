@@ -19,6 +19,7 @@ const App: React.FC = () => {
       window.api.sendInput(userText);
     }
     alert(userText);
+    setUserText("");
   };
 
   return (

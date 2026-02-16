@@ -6,9 +6,42 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-ipcMain.on("renderer:user-input", (_event, text) => {
+const ECHO_ENDPOINT = process.env.ECHO_ENDPOINT ?? "http://localhost:8080/echo";
+
+async function postUserInputToEchoEndpoint(text: unknown) {
   const value = typeof text === "string" ? text : JSON.stringify(text);
   console.log("[renderer:user-input]", value);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(ECHO_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Accept": "text/plain"
+      },
+      body: value,
+      signal: controller.signal
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      console.error("[spring-boot] non-200", response.status, responseText);
+      return;
+    }
+
+    console.log("[spring-boot] /echo response:", responseText);
+  } catch (error) {
+    console.error("[spring-boot] request failed:", error);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+ipcMain.on("renderer:user-input", (_event, text) => {
+  void postUserInputToEchoEndpoint(text);
 });
 
 function createWindow() {
