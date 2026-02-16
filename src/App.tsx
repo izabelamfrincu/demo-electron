@@ -3,11 +3,9 @@ import React, { useState } from "react";
 // Define a TypeScript type for the Electron API exposed in preload
 //Global declaration for Electron API
 // This tells TypeScript what window.api looks like.
-// Now window.api.hello() is type-checked.
 declare global {
   interface Window {
     api?: {
-      hello: () => string;
       sendInput: (text: string) => void;
     };
   }
