@@ -1,10 +1,10 @@
 // --- Sample Data ---
 const teams = [
-    { id: 'eng', name: 'Engineering', members: 45, desc: 'Software development and technical infrastructure.', email: 'engineering-leads@org.com', owners: ['Alice Johnson', 'Bob Smith'] },
-    { id: 'ds', name: 'Data Science', members: 28, desc: 'Machine learning, analytics, and data insights.', email: 'ds-core@org.com', owners: ['Carol White'] },
-    { id: 'prod', name: 'Product', members: 15, desc: 'Product management and strategy.', email: 'product-mgmt@org.com', owners: ['Dave Brown'] },
-    { id: 'mktg', name: 'Marketing', members: 22, desc: 'Marketing campaigns and brand management.', email: 'mktg-ops@org.com', owners: ['Eve Davis'] },
-    { id: 'sales', name: 'Sales', members: 35, desc: 'Customer acquisition and account management.', email: 'sales-global@org.com', owners: ['Frank Wilson'] }
+    { id: 'eng', name: 'Engineering', logo: '🛠️', desc: 'Software development and technical infrastructure.', email: 'engineering-leads@org.com', owners: ['Alice Johnson', 'Bob Smith'] },
+    { id: 'ds', name: 'Data Science', logo: '📊', desc: 'Machine learning, analytics, and data insights.', email: 'ds-core@org.com', owners: ['Carol White'] },
+    { id: 'prod', name: 'Product', logo: '📦', desc: 'Product management and strategy.', email: 'product-mgmt@org.com', owners: ['Dave Brown'] },
+    { id: 'mktg', name: 'Marketing', logo: '📣', desc: 'Marketing campaigns and brand management.', email: 'mktg-ops@org.com', owners: ['Eve Davis'] },
+    { id: 'sales', name: 'Sales', logo: '💼', desc: 'Customer acquisition and account management.', email: 'sales-global@org.com', owners: ['Frank Wilson'] }
 ];
 
 const products = {
@@ -148,8 +148,13 @@ function renderTeams() {
     const container = document.getElementById('teams-container');
     container.innerHTML = teams.map(team => `
         <div class="team-card ${selectedTeam?.id === team.id ? 'selected' : ''}" onclick="selectTeam('${team.id}')">
-            <h3>${team.name}</h3>
-            <p>${team.members} members • ${team.desc.substring(0, 40)}...</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="team-logo-small">${team.logo}</div>
+                <div>
+                    <h3 style="font-size: 1.125rem; margin-bottom: 4px;">${team.name}</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">${team.desc.substring(0, 50)}...</p>
+                </div>
+            </div>
         </div>
     `).join('');
 }
@@ -161,8 +166,15 @@ function selectTeam(id) {
 
     const details = document.getElementById('team-details');
     details.innerHTML = `
-        <h2 style="font-size: 1.25rem; margin-bottom: 16px;">${selectedTeam.name}</h2>
-        <p style="margin-bottom: 24px; color: var(--text-muted); line-height: 1.6;">${selectedTeam.desc}</p>
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
+            <div class="team-logo-large">${selectedTeam.logo}</div>
+            <div>
+                <h2 style="font-size: 1.5rem; font-weight: 700;">${selectedTeam.name}</h2>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Team Overview & Resources</p>
+            </div>
+        </div>
+        
+        <p style="margin-bottom: 32px; color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">${selectedTeam.desc}</p>
         
         <div style="margin-bottom: 20px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Point of Contact</label>

@@ -239,6 +239,35 @@ main {
     box-shadow: var(--shadow-sm);
 }
 
+.team-logo-small {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 0px solid var(--border);
+    border-radius: 50%;
+    /* Rounded shape */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.team-logo-large {
+    width: 64px;
+    height: 64px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    /* Rounded shape */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+}
+
 .team-card h3 {
     font-size: 1rem;
     margin-bottom: 4px;
