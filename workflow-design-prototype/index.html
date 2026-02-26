@@ -35,6 +35,10 @@
                 <div class="step-circle">4</div>
                 <div class="step-label">Permissions</div>
             </div>
+            <div class="step" id="step-5-indicator">
+                <div class="step-circle">5</div>
+                <div class="step-label">Preview</div>
+            </div>
         </div>
 
         <div class="workflow-content">
@@ -341,6 +345,105 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 5: Review & Generate -->
+            <section id="step-5" class="view-section">
+                <div class="section-header">
+                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;"
+                        onclick="goToStep(4)">← Back to Permissions</button>
+                    <h1 class="section-title">Preview</h1>
+                    <p class="section-desc">Preview the generated configuration and schema files before final
+                        submission.</p>
+                </div>
+
+                <div class="preview-layout">
+                    <div class="preview-sidebar">
+                        <div class="sidebar-title">Generated Files</div>
+                        <ul class="file-list" id="file-list">
+                            <li class="file-item active" onclick="showFilePreview('spec.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                spec.json
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('table.sql')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                table.sql
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('view.sql')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                view.sql
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('tvf.sql')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                tvf.sql
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('table.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                table.json
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('view.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                view.json
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('tvf.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                tvf.json
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('aws-config.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002-2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                aws-config.json
+                            </li>
+                            <li class="file-item" onclick="showFilePreview('permissions.json')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                                permissions.json
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-toolbar">
+                            <span id="preview-filename">spec.json</span>
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
+                                onclick="copyToClipboard()">Copy</button>
+                        </div>
+                        <pre class="code-preview" id="code-preview-content">
+                        </pre>
                     </div>
                 </div>
             </section>

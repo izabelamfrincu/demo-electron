@@ -66,6 +66,8 @@ let currentStep = 1;
 let selectedTeam = null;
 let selectedProduct = null;
 let eventTypes = [];
+let generatedFiles = {}; // Stores content for preview
+let currentPreviewFile = 'spec.json';
 let permissions = {
     global: [], // Each item: { email: '...', type: 'user' | 'group' }
     test: [],
@@ -140,6 +142,11 @@ function goToStep(step) {
         renderProducts(selectedTeam.id);
     }
 
+    if (step === 5) {
+        generatePreviews();
+        showFilePreview('spec.json');
+    }
+
     updateNavigation();
 }
 
@@ -152,10 +159,10 @@ function handleBack() {
 }
 
 function handleNext() {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
         goToStep(currentStep + 1);
     } else {
-        alert('Workflow completed successfully!');
+        alert('Workflow completed and configurations submitted!');
     }
 }
 
@@ -174,8 +181,11 @@ function updateNavigation() {
     } else if (currentStep === 3) {
         nextBtn.textContent = 'Next: Access Permissions';
         nextBtn.disabled = false;
+    } else if (currentStep === 4) {
+        nextBtn.textContent = 'Next: Review & Generate';
+        nextBtn.disabled = false;
     } else {
-        nextBtn.textContent = 'Finish Workflow';
+        nextBtn.textContent = 'Submit Workflow';
         nextBtn.disabled = false;
     }
 }
@@ -521,11 +531,141 @@ function flattenSchema(schema, name, depth, requiredList, rows) {
             depth: depth,
             hasChildren: (type === 'object' && field.properties)
         });
-
         if (type === 'object' && field.properties) {
             flattenSchema(field, key, depth + 1, field.required || [], rows);
         } else if (type === 'array' && field.items && field.items.type === 'object') {
             flattenSchema(field.items, key, depth + 1, field.items.required || [], rows);
         }
+    });
+}
+
+function generatePreviews() {
+    const eventName = document.getElementById('event-name-input').value || 'MY_EVENT';
+    const arnInputs = document.querySelectorAll('.arn-input');
+    const arns = {
+        test: arnInputs[0]?.value || 'arn:aws:sns:us-east-1:123456:test-topic',
+        live: arnInputs[1]?.value || 'arn:aws:sns:us-east-1:123456:live-topic',
+        drtest: arnInputs[2]?.value || 'arn:aws:sns:us-east-1:123456:drtest-topic',
+        drlive: arnInputs[3]?.value || 'arn:aws:sns:us-east-1:123456:drlive-topic'
+    };
+
+    const isPartner = document.getElementById('entity-partner').checked;
+    const isCustomer = document.getElementById('entity-customer').checked;
+    const defaultEnc = document.querySelector('input[name="default-enc"]:checked')?.value || 'PARTNER';
+
+    generatedFiles['spec.json'] = JSON.stringify({
+        version: "1.0",
+        team: selectedTeam?.name,
+        product: selectedProduct?.name,
+        eventName: eventName,
+        eventTypes: eventTypes,
+        entities: {
+            partner: isPartner,
+            customer: isCustomer,
+            default_encryption: defaultEnc
+        },
+        infrastructure: {
+            platform: "AWS",
+            regions: ["us-east-1", "us-west-2"]
+        }
+    }, null, 4);
+
+    generatedFiles['aws-config.json'] = JSON.stringify({
+        sns_topics: arns,
+        encryption: {
+            kms_key: "arn:aws:kms:us-east-1:123456:key/abc-123",
+            algorithm: "AES_256"
+        },
+        storage: {
+            bucket_pattern: `otto-pay-${selectedTeam?.id}-${selectedProduct?.name.toLowerCase().replace(/\s+/g, '-')}-data-{env}`,
+            lifecycle: "90_DAYS"
+        }
+    }, null, 4);
+
+    generatedFiles['permissions.json'] = JSON.stringify({
+        permissions: permissions
+    }, null, 4);
+
+    generatedFiles['table.sql'] = `CREATE TABLE \`raw_${eventName.toLowerCase()}\` (\n` +
+        `    id STRING PRIMARY KEY,\n` +
+        `    event_type STRING,\n` +
+        `    timestamp TIMESTAMP,\n` +
+        `    payload JSONB\n` +
+        `) WITH (\n` +
+        `    partition_by = 'day(timestamp)',\n` +
+        `    retention = '30 days'\n` +
+        `);`;
+
+    generatedFiles['view.sql'] = `CREATE VIEW \`v_${eventName.toLowerCase()}\` AS\n` +
+        `SELECT\n` +
+        `    id,\n` +
+        `    event_type,\n` +
+        `    timestamp,\n` +
+        `    payload->>'user_id' as user_id\n` +
+        `FROM \`raw_${eventName.toLowerCase()}\`\n` +
+        `WHERE _is_deleted = false;`;
+
+    generatedFiles['tvf.sql'] = `CREATE FUNCTION \`tvf_${eventName.toLowerCase()}\` (start_date DATE, end_date DATE)\n` +
+        `RETURNS TABLE\n` +
+        `AS\n` +
+        `RETURN\n` +
+        `SELECT * FROM \`v_${eventName.toLowerCase()}\`\n` +
+        `WHERE timestamp BETWEEN start_date AND end_date;`;
+
+    generatedFiles['table.json'] = JSON.stringify({
+        table_name: `raw_${eventName.toLowerCase()}`,
+        schema: [
+            { name: "id", type: "STRING", mode: "REQUIRED", description: "Unique UUID" },
+            { name: "event_type", type: "STRING", mode: "REQUIRED" },
+            { name: "timestamp", type: "TIMESTAMP", mode: "REQUIRED" },
+            { name: "payload", type: "JSON", mode: "NULLABLE" }
+        ],
+        partitions: ["timestamp"]
+    }, null, 4);
+
+    generatedFiles['view.json'] = JSON.stringify({
+        view_name: `v_${eventName.toLowerCase()}`,
+        base_tables: [`raw_${eventName.toLowerCase()}`],
+        transformations: ["flatten_payload", "filter_deleted"]
+    }, null, 4);
+
+    generatedFiles['tvf.json'] = JSON.stringify({
+        function_name: `tvf_${eventName.toLowerCase()}`,
+        parameters: [
+            { name: "start_date", type: "DATE" },
+            { name: "end_date", type: "DATE" }
+        ]
+    }, null, 4);
+}
+
+function showFilePreview(filename) {
+    currentPreviewFile = filename;
+    const content = generatedFiles[filename] || "// File content not available.";
+    const displayElement = document.getElementById('code-preview-content');
+    const filenameElement = document.getElementById('preview-filename');
+
+    // Update Sidebar Selection
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.textContent.trim() === filename) {
+            item.classList.add('active');
+        }
+    });
+
+    filenameElement.textContent = filename;
+    displayElement.textContent = content;
+}
+
+function copyToClipboard() {
+    const content = generatedFiles[currentPreviewFile];
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = document.querySelector('.preview-toolbar .btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('btn-primary');
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('btn-primary');
+        }, 2000);
     });
 }
