@@ -264,6 +264,16 @@ function handleFile(file) {
     reader.readAsText(file);
 }
 
+function resetSchema() {
+    // Clear data
+    document.getElementById('schema-tbody').innerHTML = '';
+    document.getElementById('file-input').value = '';
+
+    // Toggle visibility
+    document.getElementById('schema-table-wrapper').style.display = 'none';
+    document.getElementById('drop-zone').style.display = 'block';
+}
+
 // Process and Render Table
 function processSchema(schema) {
     const tbody = document.getElementById('schema-tbody');
@@ -284,13 +294,13 @@ function processSchema(schema) {
                 </div>
             </td>
             <td><span class="pill ${row.type === 'object' ? 'pill-obj' : 'pill-type'}">${row.type}</span></td>
-            <td style="color: var(--text-muted); max-width: 250px;">${row.desc || '-'}</td>
-            <td style="text-align: center;"><input type="checkbox" ${row.required ? 'checked' : ''}></td>
-            <td style="text-align: center;"><input type="checkbox"></td>
-            <td style="text-align: center;"><input type="checkbox"></td>
-            <td style="text-align: center;"><input type="checkbox"></td>
-            <td style="text-align: center;"><input type="checkbox"></td>
-            <td style="text-align: center;"><input type="checkbox"></td>
+            <td><input type="text" class="desc-input" value="${row.desc || ''}" placeholder="Add description..."></td>
+            <td class="col-checkbox"><input type="checkbox" ${row.required ? 'checked' : ''}></td>
+            <td class="col-checkbox"><input type="checkbox"></td>
+            <td class="col-checkbox"><input type="checkbox"></td>
+            <td class="col-checkbox"><input type="checkbox"></td>
+            <td class="col-checkbox"><input type="checkbox"></td>
+            <td class="col-checkbox"><input type="checkbox"></td>
         </tr>
     `).join('');
 

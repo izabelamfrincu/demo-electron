@@ -105,22 +105,27 @@
                             <h2 style="font-size: 1.125rem; font-weight: 600;">Schema Structure</h2>
                             <p id="schema-stats" style="font-size: 0.8125rem; color: var(--text-muted);"></p>
                         </div>
-                        <div class="btn btn-secondary" style="font-size: 0.8125rem; padding: 6px 12px;">Export Mapping
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary"
+                                style="font-size: 0.8125rem; padding: 6px 12px; border-color: #fecaca; color: #dc2626;"
+                                onclick="resetSchema()">Discard</button>
+                            <button class="btn btn-secondary" style="font-size: 0.8125rem; padding: 6px 12px;">Export
+                                Mapping</button>
                         </div>
                     </div>
                     <div class="table-container">
                         <table id="schema-table">
                             <thead>
                                 <tr>
-                                    <th>Field Name</th>
-                                    <th>Type</th>
+                                    <th style="width: 250px;">Field Name</th>
+                                    <th style="width: 100px;">Type</th>
                                     <th>Description</th>
-                                    <th style="text-align: center;">Required</th>
-                                    <th style="text-align: center;">PII</th>
-                                    <th style="text-align: center;">PII Related</th>
-                                    <th style="text-align: center;">Primary Key</th>
-                                    <th style="text-align: center;">Partition Column</th>
-                                    <th style="text-align: center;">Entity Field</th>
+                                    <th class="col-checkbox">Required</th>
+                                    <th class="col-checkbox">PII</th>
+                                    <th class="col-checkbox">PII Related</th>
+                                    <th class="col-checkbox">Primary Key</th>
+                                    <th class="col-checkbox">Partition Column</th>
+                                    <th class="col-checkbox">Entity Field</th>
                                 </tr>
                             </thead>
                             <tbody id="schema-tbody">
