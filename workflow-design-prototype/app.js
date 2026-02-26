@@ -147,6 +147,14 @@ function goToStep(step) {
         showFilePreview('spec.json');
     }
 
+    if (step === 6) {
+        // Automatically pre-fill the zip filename based on product
+        const zipPkgInput = document.getElementById('zip-filename-input');
+        if (zipPkgInput && selectedProduct) {
+            zipPkgInput.value = selectedProduct.name.toLowerCase().replace(/\s+/g, '-');
+        }
+    }
+
     updateNavigation();
 }
 
@@ -159,10 +167,8 @@ function handleBack() {
 }
 
 function handleNext() {
-    if (currentStep < 5) {
+    if (currentStep < 6) {
         goToStep(currentStep + 1);
-    } else {
-        alert('Workflow completed and configurations submitted!');
     }
 }
 
@@ -171,6 +177,7 @@ function updateNavigation() {
     const backBtn = document.getElementById('btn-back');
 
     backBtn.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
+    nextBtn.style.visibility = (currentStep === 6) ? 'hidden' : 'visible';
 
     if (currentStep === 1) {
         nextBtn.textContent = 'Next: Select Product';
@@ -182,11 +189,14 @@ function updateNavigation() {
         nextBtn.textContent = 'Next: Access Permissions';
         nextBtn.disabled = false;
     } else if (currentStep === 4) {
-        nextBtn.textContent = 'Next: Review & Generate';
+        nextBtn.textContent = 'Next: Preview Config';
+        nextBtn.disabled = false;
+    } else if (currentStep === 5) {
+        nextBtn.textContent = 'Next: Finalize & Generate';
         nextBtn.disabled = false;
     } else {
-        nextBtn.textContent = 'Submit Workflow';
-        nextBtn.disabled = false;
+        nextBtn.textContent = 'Data Product Generated';
+        nextBtn.disabled = true;
     }
 }
 
@@ -667,5 +677,39 @@ function copyToClipboard() {
             btn.textContent = originalText;
             btn.classList.remove('btn-primary');
         }, 2000);
+    });
+}
+
+function handleDownload() {
+    const input = document.getElementById('zip-filename-input');
+    const filename = (input.value.trim() || 'data-product-config') + '.zip';
+    const status = document.getElementById('generation-status');
+
+    if (status) status.style.display = 'block';
+
+    // Using JSZip to create the archive
+    const zip = new JSZip();
+
+    // Add all generated files to the zip
+    Object.keys(generatedFiles).forEach(name => {
+        zip.file(name, generatedFiles[name]);
+    });
+
+    // Generate zip blob and trigger download
+    zip.generateAsync({ type: 'blob' }).then(function (content) {
+        // Simple client-side download trigger
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(content);
+        element.download = filename;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+
+        if (status) {
+            status.innerHTML = `<p style="color: #059669; font-weight: 500;">✓ Successfully generated "${filename}"!</p>`;
+            setTimeout(() => {
+                alert(`Data Product Generation Complete!\nFile: ${filename} has been prepared for download.`);
+            }, 500);
+        }
     });
 }

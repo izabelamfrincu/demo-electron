@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Product Workflow | Design Prototype</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 
 <body>
@@ -38,6 +39,10 @@
             <div class="step" id="step-5-indicator">
                 <div class="step-circle">5</div>
                 <div class="step-label">Preview</div>
+            </div>
+            <div class="step" id="step-6-indicator">
+                <div class="step-circle">6</div>
+                <div class="step-label">Generate</div>
             </div>
         </div>
 
@@ -444,6 +449,60 @@
                         </div>
                         <pre class="code-preview" id="code-preview-content">
                         </pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 6: Generate -->
+            <section id="step-6" class="view-section">
+                <div class="section-header">
+                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;"
+                        onclick="goToStep(5)">← Back to Preview</button>
+                    <h1 class="section-title">Generate Data Product</h1>
+                    <p class="section-desc">Finalize your data product configuration and download the deployment
+                        package.</p>
+                </div>
+
+                <div class="config-card" style="max-width: 600px; margin: 0 auto; text-align: center; padding: 48px;">
+                    <div style="margin-bottom: 24px;">
+                        <div
+                            style="width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">Ready to Generate</h2>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Enter a name for your configuration
+                            package.</p>
+                    </div>
+
+                    <div style="text-align: left; margin-bottom: 32px;">
+                        <label class="env-label mandatory" style="margin-bottom: 8px;">Package File Name</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="zip-filename-input" class="arn-input"
+                                style="flex: 1; font-family: inherit; font-size: 1rem;"
+                                placeholder="e.g. user-service-config">
+                            <span style="font-weight: 600; color: var(--text-muted); font-size: 1rem;">.zip</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary"
+                        style="width: 100%; padding: 14px; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;"
+                        onclick="handleDownload()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Generate & Download Package
+                    </button>
+
+                    <div id="generation-status" style="margin-top: 16px; font-size: 0.8125rem; display: none;">
+                        <p style="color: #059669; font-weight: 500;">Generating ZIP file...</p>
                     </div>
                 </div>
             </section>
