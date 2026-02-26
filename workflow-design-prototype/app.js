@@ -10,12 +10,18 @@ const teams = [
 const products = {
     'eng': [
         { name: 'Core API Logs', domain: 'Infrastructure', desc: 'Centralized logs for all microservices.', confluence: 'https://confluence.org/core-api-logs' },
-        { name: 'User Service DB', domain: 'Account', desc: 'Primary user data and authentication records.', confluence: 'https://confluence.org/user-db' }
+        { name: 'User Service DB', domain: 'Account', desc: 'Primary user data and authentication records.', confluence: 'https://confluence.org/user-db' },
+        { name: 'Service Mesh Metrics', domain: 'DevOps', desc: 'Real-time traffic and latency data.', confluence: 'https://confluence.org/mesh-metrics' },
+        { name: 'Auth Audit Logs', domain: 'Security', desc: 'Detailed history of authentication attempts.', confluence: 'https://confluence.org/auth-audit' },
+        { name: 'K8s Cluster Health', domain: 'Core', desc: 'Node and pod level resource utilization.', confluence: 'https://confluence.org/k8s-health' }
     ],
     'ds': [
         { name: 'Customer Analytics', domain: 'Analytics', desc: 'Aggregated metrics on user behavior and engagement.', confluence: 'https://confluence.org/cust-analytics' },
         { name: 'Sales Pipeline', domain: 'Sales', desc: 'Forecasting and pipeline health data.', confluence: 'https://confluence.org/sales-pipeline' },
-        { name: 'User Activity Logs', domain: 'Monitoring', desc: 'Live interaction data from web and mobile apps.', confluence: 'https://confluence.org/user-activity' }
+        { name: 'User Activity Logs', domain: 'Monitoring', desc: 'Live interaction data from web and mobile apps.', confluence: 'https://confluence.org/user-activity' },
+        { name: 'ML Model Inference', domain: 'AI', desc: 'Prediction results from production models.', confluence: 'https://confluence.org/ml-inference' },
+        { name: 'Retention Cohorts', domain: 'Growth', desc: 'User retention data grouped by signup periods.', confluence: 'https://confluence.org/retention' },
+        { name: 'Feature Store Alpha', domain: 'Platform', desc: 'Central repository for curated data features.', confluence: 'https://confluence.org/feature-store' }
     ]
 };
 
@@ -78,7 +84,7 @@ function goToStep(step) {
     }
 
     currentStep = step;
-    
+
     // Update Indicators
     document.querySelectorAll('.step').forEach((s, idx) => {
         s.classList.remove('active', 'completed');
@@ -111,7 +117,7 @@ function updateNavigation() {
     const backBtn = document.getElementById('btn-back');
 
     backBtn.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
-    
+
     if (currentStep === 1) {
         nextBtn.textContent = 'Next: Select Product';
         nextBtn.disabled = !selectedTeam;
@@ -166,33 +172,59 @@ function selectTeam(id) {
 function renderProducts(teamId) {
     const container = document.getElementById('products-container');
     const teamProducts = products[teamId] || [];
-    
+
     if (teamProducts.length === 0) {
         container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); margin-top: 40px;">No products found for this team.</p>`;
         return;
     }
 
     container.innerHTML = teamProducts.map(prod => `
-        <div class="product-tile" onclick="selectProduct('${prod.name}')">
-            <div style="width: 40px; height: 40px; background: var(--primary-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--primary);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+        <div class="product-tile ${selectedProduct?.name === prod.name ? 'selected' : ''}" onclick="selectProduct('${prod.name}')">
+            <div style="width: 24px; height: 24px; background: var(--primary-light); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--primary);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
             </div>
-            <h3 style="font-size: 1.1rem; margin-bottom: 4px;">${prod.name}</h3>
-            <p style="font-size: 0.875rem; color: var(--text-muted);">${prod.domain}</p>
-            <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border);">
-            <p style="font-size: 0.8125rem; color: var(--text-main); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.desc}</p>
-            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
-                 <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">View Details →</span>
-                 <a href="${prod.confluence}" target="_blank" style="font-size: 0.75rem; color: var(--text-muted);">Docs</a>
+            <div style="flex: 1; min-width: 0;">
+                <h3 style="font-size: 0.875rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">${prod.domain}</p>
             </div>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--border);"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
     `).join('');
 }
 
 function selectProduct(name) {
-    selectedProduct = name;
+    const teamProducts = products[selectedTeam.id] || [];
+    selectedProduct = teamProducts.find(p => p.name === name);
+
+    renderProducts(selectedTeam.id);
     updateNavigation();
-    goToStep(3); // Auto-advance as requested in workflow
+
+    const details = document.getElementById('product-details');
+    details.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+            </div>
+            <div>
+                <h2 style="font-size: 1.125rem;">${selectedProduct.name}</h2>
+                <span class="pill pill-obj" style="font-size: 0.65rem;">${selectedProduct.domain}</span>
+            </div>
+        </div>
+        
+        <p style="margin-bottom: 24px; color: var(--text-muted); line-height: 1.6; font-size: 0.9rem;">${selectedProduct.desc}</p>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Documentation</label>
+            <a href="${selectedProduct.confluence}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.875rem; display: flex; align-items: center; gap: 4px;">
+                Confluence Wiki <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+        </div>
+
+        <div style="margin-top: 40px; padding: 16px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md);">
+            <p style="font-size: 0.8125rem; font-weight: 500;">Ready to on-board a new event?</p>
+            <button class="btn btn-primary" style="margin-top: 12px; width: 100%; font-size: 0.875rem;" onclick="goToStep(3)">Configure Mapping</button>
+        </div>
+    `;
 }
 
 // --- Schema Table Logic ---
@@ -236,7 +268,7 @@ function handleFile(file) {
 function processSchema(schema) {
     const tbody = document.getElementById('schema-tbody');
     tbody.innerHTML = '';
-    
+
     document.getElementById('schema-table-wrapper').style.display = 'block';
     document.getElementById('drop-zone').style.display = 'none';
 
@@ -275,7 +307,7 @@ function flattenSchema(schema, name, depth, requiredList, rows) {
         const field = props[key];
         const isRequired = requiredList.includes(key);
         const type = field.type || 'any';
-        
+
         rows.push({
             name: key,
             type: type,
@@ -288,7 +320,7 @@ function flattenSchema(schema, name, depth, requiredList, rows) {
         if (type === 'object' && field.properties) {
             flattenSchema(field, key, depth + 1, field.required || [], rows);
         } else if (type === 'array' && field.items && field.items.type === 'object') {
-             flattenSchema(field.items, key, depth + 1, field.items.required || [], rows);
+            flattenSchema(field.items, key, depth + 1, field.items.required || [], rows);
         }
     });
 }

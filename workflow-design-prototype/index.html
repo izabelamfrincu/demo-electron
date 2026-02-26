@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Product Workflow | Design Prototype</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header>
         <div class="logo">
@@ -36,7 +38,8 @@
             <section id="step-1" class="view-section active">
                 <div class="section-header">
                     <h1 class="section-title">Select Your Team</h1>
-                    <p class="section-desc">Choose a team to access their data products and start managing your workflow.</p>
+                    <p class="section-desc">Choose a team to access their data products and start managing your
+                        workflow.</p>
                 </div>
                 <div class="teams-layout">
                     <div class="teams-list" id="teams-container">
@@ -53,40 +56,57 @@
             <!-- Step 2: Select Data Product -->
             <section id="step-2" class="view-section">
                 <div class="section-header">
-                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;" onclick="goToStep(1)">← Back to Teams</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;"
+                        onclick="goToStep(1)">← Back to Teams</button>
                     <h1 class="section-title">Select Data Product</h1>
-                    <p class="section-desc">Choose one of the products owned by <span id="selected-team-name-display" style="font-weight: 600;">Team</span>.</p>
+                    <p class="section-desc">Choose one of the products owned by <span id="selected-team-name-display"
+                            style="font-weight: 600;">Team</span>.</p>
                 </div>
-                <div class="products-grid" id="products-container">
-                    <!-- JS Inserts products here -->
+                <div class="products-layout">
+                    <div class="products-grid" id="products-container">
+                        <!-- JS Inserts products here -->
+                    </div>
+                    <div class="product-details" id="product-details">
+                        <div style="color: var(--text-muted); text-align: center; margin-top: 100px;">
+                            Select a product to see details
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- Step 3: Schema Upload & Table -->
             <section id="step-3" class="view-section">
                 <div class="section-header">
-                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;" onclick="goToStep(2)">← Back to Products</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;"
+                        onclick="goToStep(2)">← Back to Products</button>
                     <h1 class="section-title">Upload & Map Data Schema</h1>
                     <p class="section-desc">Upload your JSON schema to generate the data mapping table.</p>
                 </div>
-                
+
                 <div class="upload-zone" id="drop-zone">
-                    <svg style="margin: 0 auto 16px; width: 48px; height: 48px; color: var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    <svg style="margin: 0 auto 16px; width: 48px; height: 48px; color: var(--text-muted);" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                        </path>
                     </svg>
                     <p style="font-weight: 500;">Click to upload or drag and drop</p>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Supports .json schema files</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Supports .json schema files
+                    </p>
                     <input type="file" id="file-input" style="display: none;" accept=".json">
-                    <button class="btn btn-primary" style="margin-top: 16px;" onclick="document.getElementById('file-input').click()">Choose JSON Schema File</button>
+                    <button class="btn btn-primary" style="margin-top: 16px;"
+                        onclick="document.getElementById('file-input').click()">Choose JSON Schema File</button>
                 </div>
 
                 <div id="schema-table-wrapper" style="display: none;">
-                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <div class="section-header"
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
                         <div>
                             <h2 style="font-size: 1.125rem; font-weight: 600;">Schema Structure</h2>
                             <p id="schema-stats" style="font-size: 0.8125rem; color: var(--text-muted);"></p>
                         </div>
-                        <div class="btn btn-secondary" style="font-size: 0.8125rem; padding: 6px 12px;">Export Mapping</div>
+                        <div class="btn btn-secondary" style="font-size: 0.8125rem; padding: 6px 12px;">Export Mapping
+                        </div>
                     </div>
                     <div class="table-container">
                         <table id="schema-table">
@@ -120,4 +140,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
