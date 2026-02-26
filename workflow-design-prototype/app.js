@@ -65,11 +65,24 @@ const demoSchema = {
 let currentStep = 1;
 let selectedTeam = null;
 let selectedProduct = null;
+let eventTypes = [];
 
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
     renderTeams();
     updateNavigation();
+
+    // Event Type handling
+    const addTagInput = document.getElementById('add-tag-input');
+    if (addTagInput) {
+        addTagInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(addTagInput.value.trim());
+                addTagInput.value = '';
+            }
+        });
+    }
 });
 
 // --- Navigation Logic ---
@@ -268,6 +281,8 @@ function resetSchema() {
     // Clear data
     document.getElementById('schema-tbody').innerHTML = '';
     document.getElementById('file-input').value = '';
+    eventTypes = [];
+    renderEventTypes();
 
     // Toggle visibility
     document.getElementById('schema-table-wrapper').style.display = 'none';
@@ -284,6 +299,48 @@ function toggleExclusive(checkbox, type) {
     });
 }
 
+function updateEncryptionDefault() {
+    const isPartner = document.getElementById('entity-partner').checked;
+    const isCustomer = document.getElementById('entity-customer').checked;
+    const section = document.getElementById('encryption-default-section');
+
+    if (isPartner && isCustomer) {
+        section.classList.add('visible');
+    } else {
+        section.classList.remove('visible');
+    }
+}
+
+function addTag(value) {
+    if (!value || eventTypes.includes(value)) return;
+    eventTypes.push(value);
+    renderEventTypes();
+}
+
+function removeTag(value) {
+    eventTypes = eventTypes.filter(t => t !== value);
+    renderEventTypes();
+}
+
+function renderEventTypes() {
+    const container = document.getElementById('event-types-list');
+    const input = document.getElementById('add-tag-input');
+
+    // Clear previous tags except input
+    const tags = container.querySelectorAll('.tag');
+    tags.forEach(t => t.remove());
+
+    eventTypes.forEach(type => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `
+            ${type}
+            <span class="tag-remove" onclick="removeTag('${type}')">&times;</span>
+        `;
+        container.insertBefore(tag, input);
+    });
+}
+
 // Process and Render Table
 function processSchema(schema) {
     const tbody = document.getElementById('schema-tbody');
@@ -291,6 +348,18 @@ function processSchema(schema) {
 
     document.getElementById('schema-table-wrapper').style.display = 'block';
     document.getElementById('drop-zone').style.display = 'none';
+
+    // Auto-fill Event Name if available in schema title or id
+    const eventNameInput = document.getElementById('event-name-input');
+    eventNameInput.value = schema.title || schema.$id?.split('/').pop().replace('.json', '') || '';
+
+    // Auto-fill Event Types if enum exists in schema
+    eventTypes = [];
+    const eventTypeProp = schema.properties?.type || schema.properties?.eventType;
+    if (eventTypeProp?.enum) {
+        eventTypes = [...eventTypeProp.enum];
+    }
+    renderEventTypes();
 
     const rows = [];
     flattenSchema(schema, '', 0, schema.required || [], rows);
