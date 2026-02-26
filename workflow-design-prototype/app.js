@@ -274,6 +274,16 @@ function resetSchema() {
     document.getElementById('drop-zone').style.display = 'block';
 }
 
+function toggleExclusive(checkbox, type) {
+    if (!checkbox.checked) return;
+
+    // Find all checkboxes of this specific type and uncheck them
+    const selector = `.exclusive-${type}`;
+    document.querySelectorAll(selector).forEach(cb => {
+        if (cb !== checkbox) cb.checked = false;
+    });
+}
+
 // Process and Render Table
 function processSchema(schema) {
     const tbody = document.getElementById('schema-tbody');
@@ -298,9 +308,9 @@ function processSchema(schema) {
             <td class="col-checkbox"><input type="checkbox" ${row.required ? 'checked' : ''}></td>
             <td class="col-checkbox"><input type="checkbox"></td>
             <td class="col-checkbox"><input type="checkbox"></td>
-            <td class="col-checkbox"><input type="checkbox"></td>
-            <td class="col-checkbox"><input type="checkbox"></td>
-            <td class="col-checkbox"><input type="checkbox"></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-pk" onclick="toggleExclusive(this, 'pk')"></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-partition" onclick="toggleExclusive(this, 'partition')"></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-entity" onclick="toggleExclusive(this, 'entity')"></td>
         </tr>
     `).join('');
 
