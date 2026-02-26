@@ -66,6 +66,13 @@ let currentStep = 1;
 let selectedTeam = null;
 let selectedProduct = null;
 let eventTypes = [];
+let permissions = {
+    global: [], // Each item: { email: '...', type: 'user' | 'group' }
+    test: [],
+    live: [],
+    drtest: [],
+    drlive: []
+};
 
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -83,6 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Permission inputs handling
+    const setupPermissionInput = (id, env) => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addPermission(env);
+                }
+            });
+        }
+    };
+
+    setupPermissionInput('add-permission-global', 'global');
+    setupPermissionInput('add-permission-test', 'test');
+    setupPermissionInput('add-permission-live', 'live');
+    setupPermissionInput('add-permission-drtest', 'drtest');
+    setupPermissionInput('add-permission-drlive', 'drlive');
 });
 
 // --- Navigation Logic ---
@@ -118,11 +144,19 @@ function goToStep(step) {
 }
 
 function handleBack() {
-    if (currentStep > 1) goToStep(currentStep - 1);
+    if (currentStep === 4) {
+        goToStep(3);
+    } else if (currentStep > 1) {
+        goToStep(currentStep - 1);
+    }
 }
 
 function handleNext() {
-    if (currentStep < 3) goToStep(currentStep + 1);
+    if (currentStep < 4) {
+        goToStep(currentStep + 1);
+    } else {
+        alert('Workflow completed successfully!');
+    }
 }
 
 function updateNavigation() {
@@ -137,6 +171,9 @@ function updateNavigation() {
     } else if (currentStep === 2) {
         nextBtn.textContent = 'Next: Data Schema';
         nextBtn.disabled = !selectedProduct;
+    } else if (currentStep === 3) {
+        nextBtn.textContent = 'Next: Access Permissions';
+        nextBtn.disabled = false;
     } else {
         nextBtn.textContent = 'Finish Workflow';
         nextBtn.disabled = false;
@@ -206,7 +243,7 @@ function renderProducts(teamId) {
     container.innerHTML = teamProducts.map(prod => `
         <div class="product-tile ${selectedProduct?.name === prod.name ? 'selected' : ''}" onclick="selectProduct('${prod.name}')">
             <div style="width: 24px; height: 24px; background: var(--primary-light); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--primary);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34-9-3"></path></svg>
             </div>
             <div style="flex: 1; min-width: 0;">
                 <h3 style="font-size: 0.875rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h3>
@@ -228,7 +265,7 @@ function selectProduct(name) {
     details.innerHTML = `
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
             <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"></path><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34-9-3"></path></svg>
             </div>
             <div>
                 <h2 style="font-size: 1.125rem;">${selectedProduct.name}</h2>
@@ -256,25 +293,29 @@ function selectProduct(name) {
 const fileInput = document.getElementById('file-input');
 const dropZone = document.getElementById('drop-zone');
 
-fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) handleFile(file);
-});
+if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleFile(file);
+    });
+}
 
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-});
+if (dropZone) {
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
 
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('dragover');
-});
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
 
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-});
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+    });
+}
 
 function handleFile(file) {
     const reader = new FileReader();
@@ -290,21 +331,16 @@ function handleFile(file) {
 }
 
 function resetSchema() {
-    // Clear data
     document.getElementById('schema-tbody').innerHTML = '';
     document.getElementById('file-input').value = '';
     eventTypes = [];
     renderEventTypes();
-
-    // Toggle visibility
     document.getElementById('schema-table-wrapper').style.display = 'none';
     document.getElementById('drop-zone').style.display = 'block';
 }
 
 function toggleExclusive(checkbox, type) {
     if (!checkbox.checked) return;
-
-    // Find all checkboxes of this specific type and uncheck them
     const selector = `.exclusive-${type}`;
     document.querySelectorAll(selector).forEach(cb => {
         if (cb !== checkbox) cb.checked = false;
@@ -337,8 +373,8 @@ function removeTag(value) {
 function renderEventTypes() {
     const container = document.getElementById('event-types-list');
     const input = document.getElementById('add-tag-input');
+    if (!container) return;
 
-    // Clear previous tags except input
     const tags = container.querySelectorAll('.tag');
     tags.forEach(t => t.remove());
 
@@ -353,19 +389,86 @@ function renderEventTypes() {
     });
 }
 
+// --- Permissions Management ---
+function togglePermissionSync() {
+    const isSynced = document.getElementById('sync-permissions').checked;
+    const globalArea = document.getElementById('global-permission-area');
+    const envArea = document.getElementById('env-specific-permission-area');
+
+    if (isSynced) {
+        globalArea.style.display = 'block';
+        envArea.classList.remove('visible');
+    } else {
+        globalArea.style.display = 'none';
+        envArea.classList.add('visible');
+
+        if (permissions.test.length === 0 && permissions.global.length > 0) {
+            ['test', 'live', 'drtest', 'drlive'].forEach(env => {
+                permissions[env] = [...permissions.global.map(p => ({ ...p }))];
+                renderPermissions(env);
+            });
+        }
+    }
+}
+
+function addPermission(env) {
+    const input = document.getElementById(`add-permission-${env}`);
+    const typeSelect = document.getElementById(`type-${env}`);
+    const email = input.value.trim();
+    const type = typeSelect ? typeSelect.value : 'user';
+
+    if (!email) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address');
+        return;
+    }
+
+    if (permissions[env].some(p => p.email === email)) {
+        input.value = '';
+        return;
+    }
+
+    permissions[env].push({ email, type });
+    input.value = '';
+    renderPermissions(env);
+}
+
+function removePermission(env, email) {
+    permissions[env] = permissions[env].filter(p => p.email !== email);
+    renderPermissions(env);
+}
+
+function renderPermissions(env) {
+    const container = document.getElementById(`permissions-${env}-list`);
+    if (!container) return;
+
+    container.innerHTML = '';
+    permissions[env].forEach(p => {
+        const tag = document.createElement('div');
+        tag.className = `tag permission-tag type-${p.type}`;
+        tag.innerHTML = `
+            <span class="type-indicator">${p.type === 'group' ? 'G' : 'U'}</span>
+            ${p.email}
+            <span class="tag-remove" onclick="removePermission('${env}', '${p.email}')">&times;</span>
+        `;
+        container.appendChild(tag);
+    });
+}
+
 // Process and Render Table
 function processSchema(schema) {
     const tbody = document.getElementById('schema-tbody');
-    tbody.innerHTML = '';
+    if (!tbody) return;
 
+    tbody.innerHTML = '';
     document.getElementById('schema-table-wrapper').style.display = 'block';
     document.getElementById('drop-zone').style.display = 'none';
 
-    // Auto-fill Event Name if available in schema title or id
     const eventNameInput = document.getElementById('event-name-input');
     eventNameInput.value = schema.title || schema.$id?.split('/').pop().replace('.json', '') || '';
 
-    // Auto-fill Event Types if enum exists in schema
     eventTypes = [];
     const eventTypeProp = schema.properties?.type || schema.properties?.eventType;
     if (eventTypeProp?.enum) {
@@ -395,7 +498,8 @@ function processSchema(schema) {
         </tr>
     `).join('');
 
-    document.getElementById('schema-stats').textContent = `${rows.length} fields detected in ${selectedProduct}`;
+    const stats = document.getElementById('schema-stats');
+    if (stats) stats.textContent = `${rows.length} fields detected in ${selectedProduct?.name || ''}`;
 }
 
 function flattenSchema(schema, name, depth, requiredList, rows) {
@@ -425,11 +529,3 @@ function flattenSchema(schema, name, depth, requiredList, rows) {
         }
     });
 }
-
-// Auto-populate demo schema if none uploaded
-setTimeout(() => {
-    if (currentStep === 3 && document.getElementById('drop-zone').style.display !== 'none') {
-        // Just for demo purposes if they navigate there
-        processSchema(demoSchema);
-    }
-}, 100);

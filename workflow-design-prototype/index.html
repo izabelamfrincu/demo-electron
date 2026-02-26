@@ -31,6 +31,10 @@
                 <div class="step-circle">3</div>
                 <div class="step-label">Data Schema</div>
             </div>
+            <div class="step" id="step-4-indicator">
+                <div class="step-circle">4</div>
+                <div class="step-label">Permissions</div>
+            </div>
         </div>
 
         <div class="workflow-content">
@@ -100,7 +104,7 @@
 
                 <div id="schema-table-wrapper" style="display: none;">
                     <!-- Event Mapping Details Card -->
-                    <div class="config-card" style="margin-bottom: 20px;">
+                    <div class="config-card" style="margin-bottom: 24px;">
                         <div style="margin-bottom: 20px;">
                             <h2
                                 style="font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
@@ -162,7 +166,7 @@
                     </div>
 
                     <!-- SNS Configuration Card -->
-                    <div class="config-card">
+                    <div class="config-card" style="margin-bottom: 32px;">
                         <div style="margin-bottom: 20px;">
                             <h2
                                 style="font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
@@ -238,10 +242,113 @@
                 </div>
             </section>
 
-            <div class="nav-footer">
-                <button class="btn btn-secondary" id="btn-back" onclick="handleBack()">Back</button>
-                <button class="btn btn-primary" id="btn-next" onclick="handleNext()">Next Step</button>
-            </div>
+            <!-- Step 4: Access Permissions -->
+            <section id="step-4" class="view-section">
+                <div class="section-header">
+                    <button class="btn btn-secondary" style="margin-bottom: 20px; padding: 6px 12px; font-size: 0.8rem;"
+                        onclick="goToStep(3)">← Back to Schema</button>
+                    <h1 class="section-title">Access Permissions</h1>
+                    <p class="section-desc">Manage who can access this data product across environments.</p>
+                </div>
+
+                <div class="config-card" style="margin-bottom: 32px;">
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                            Manage Access
+                        </h2>
+                        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px;">Define email
+                            addresses for permission groups or individual users who can access this product.</p>
+                    </div>
+
+                    <div class="permission-toggle-container">
+                        <label class="switch">
+                            <input type="checkbox" id="sync-permissions" checked onchange="togglePermissionSync()">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="font-size: 0.8125rem; font-weight: 500; color: var(--text-main);">Same
+                            permissions for all environments</span>
+                    </div>
+
+                    <!-- Global Permission Input -->
+                    <div id="global-permission-area">
+                        <label class="env-label mandatory">Permissions (Groups/Users)</label>
+                        <div id="permissions-global-list" class="tag-container" style="margin-bottom: 8px;"></div>
+                        <div class="permission-input-wrapper">
+                            <select id="type-global" class="permission-type-select">
+                                <option value="user">User</option>
+                                <option value="group">Group</option>
+                            </select>
+                            <input type="text" id="add-permission-global" class="add-tag-input"
+                                placeholder="Type email and press Enter...">
+                        </div>
+                    </div>
+
+                    <!-- Environment Specific Permission Inputs -->
+                    <div id="env-specific-permission-area" class="env-specific-config">
+                        <div class="permission-grid split">
+                            <div class="env-input-group">
+                                <label class="env-label mandatory">Test Permissions</label>
+                                <div id="permissions-test-list" class="tag-container" style="margin-bottom: 8px;"></div>
+                                <div class="permission-input-wrapper">
+                                    <select id="type-test" class="permission-type-select">
+                                        <option value="user">User</option>
+                                        <option value="group">Group</option>
+                                    </select>
+                                    <input type="text" id="add-permission-test" class="add-tag-input"
+                                        placeholder="Email...">
+                                </div>
+                            </div>
+                            <div class="env-input-group">
+                                <label class="env-label mandatory">Live Permissions</label>
+                                <div id="permissions-live-list" class="tag-container" style="margin-bottom: 8px;"></div>
+                                <div class="permission-input-wrapper">
+                                    <select id="type-live" class="permission-type-select">
+                                        <option value="user">User</option>
+                                        <option value="group">Group</option>
+                                    </select>
+                                    <input type="text" id="add-permission-live" class="add-tag-input"
+                                        placeholder="Email...">
+                                </div>
+                            </div>
+                            <div class="env-input-group">
+                                <label class="env-label">DR-Test Permissions</label>
+                                <div id="permissions-drtest-list" class="tag-container" style="margin-bottom: 8px;">
+                                </div>
+                                <div class="permission-input-wrapper">
+                                    <select id="type-drtest" class="permission-type-select">
+                                        <option value="user">User</option>
+                                        <option value="group">Group</option>
+                                    </select>
+                                    <input type="text" id="add-permission-drtest" class="add-tag-input"
+                                        placeholder="Email...">
+                                </div>
+                            </div>
+                            <div class="env-input-group">
+                                <label class="env-label">DR-Live Permissions</label>
+                                <div id="permissions-drlive-list" class="tag-container" style="margin-bottom: 8px;">
+                                </div>
+                                <div class="permission-input-wrapper">
+                                    <select id="type-drlive" class="permission-type-select">
+                                        <option value="user">User</option>
+                                        <option value="group">Group</option>
+                                    </select>
+                                    <input type="text" id="add-permission-drlive" class="add-tag-input"
+                                        placeholder="Email...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="nav-footer">
+            <button class="btn btn-secondary" id="btn-back" onclick="handleBack()">Back</button>
+            <button class="btn btn-primary" id="btn-next" onclick="handleNext()">Next Step</button>
         </div>
     </main>
 
