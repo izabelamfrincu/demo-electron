@@ -537,27 +537,54 @@ function processSchema(schema) {
     const rows = [];
     flattenSchema(schema, '', 0, schema.required || [], rows);
 
-    tbody.innerHTML = rows.map(row => `
-        <tr>
+    // Internal System Fields
+    const internalFields = [
+        { name: '_receivedTimestamp', type: 'timestamp', desc: 'System time when event was received', required: true, depth: 0, isInternal: true },
+        { name: 'internalOrderId', type: 'string', desc: 'Internal unique identifier for the order', required: true, depth: 0, isInternal: true },
+        { name: '_eventId', type: 'string', desc: 'Unique system event ID', required: true, depth: 0, isInternal: true }
+    ];
+
+    tbody.innerHTML = rows.map(row => renderSchemaRow(row)).join('');
+
+    // Add separator and internal fields
+    if (internalFields.length > 0) {
+        tbody.innerHTML += `
+            <tr class="system-fields-header">
+                <td colspan="9" style="background: var(--bg); font-weight: 700; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; padding: 12px 16px; letter-spacing: 0.05em;">
+                    System Generated Fields (Read-Only)
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += internalFields.map(field => renderSchemaRow(field)).join('');
+    }
+
+    const stats = document.getElementById('schema-stats');
+    if (stats) stats.textContent = `${rows.length} user fields + ${internalFields.length} system fields detected`;
+}
+
+function renderSchemaRow(row) {
+    const disabled = row.isInternal ? 'disabled' : '';
+    const readonly = row.isInternal ? 'readonly' : '';
+    const internalClass = row.isInternal ? 'row-internal' : '';
+
+    return `
+        <tr class="${internalClass}">
             <td class="indent-${row.depth}">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ${row.hasChildren ? '▼' : '<div style="width:12px"></div>'}
-                    <span style="font-family: monospace; font-weight: 500;">${row.name}</span>
+                    <span style="font-family: monospace; font-weight: 500; ${row.isInternal ? 'color: var(--primary);' : ''}">${row.name}</span>
                 </div>
             </td>
             <td><span class="pill ${row.type === 'object' ? 'pill-obj' : 'pill-type'}">${row.type}</span></td>
-            <td><input type="text" class="desc-input" value="${row.desc || ''}" placeholder="Add description..."></td>
-            <td class="col-checkbox"><input type="checkbox" ${row.required ? 'checked' : ''}></td>
-            <td class="col-checkbox"><input type="checkbox"></td>
-            <td class="col-checkbox"><input type="checkbox"></td>
-            <td class="col-checkbox"><input type="checkbox" class="exclusive-pk" onclick="toggleExclusive(this, 'pk')"></td>
-            <td class="col-checkbox"><input type="checkbox" class="exclusive-partition" onclick="toggleExclusive(this, 'partition')"></td>
-            <td class="col-checkbox"><input type="checkbox" class="exclusive-entity" onclick="toggleExclusive(this, 'entity')"></td>
+            <td><input type="text" class="desc-input" value="${row.desc || ''}" placeholder="Add description..." ${readonly} style="${row.isInternal ? 'background:transparent; border-color:transparent' : ''}"></td>
+            <td class="col-checkbox"><input type="checkbox" ${row.required ? 'checked' : ''} ${disabled}></td>
+            <td class="col-checkbox"><input type="checkbox" ${disabled}></td>
+            <td class="col-checkbox"><input type="checkbox" ${disabled}></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-pk" onclick="toggleExclusive(this, 'pk')" ${disabled}></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-partition" onclick="toggleExclusive(this, 'partition')" ${disabled}></td>
+            <td class="col-checkbox"><input type="checkbox" class="exclusive-entity" onclick="toggleExclusive(this, 'entity')" ${disabled}></td>
         </tr>
-    `).join('');
-
-    const stats = document.getElementById('schema-stats');
-    if (stats) stats.textContent = `${rows.length} fields detected in ${selectedProduct?.name || ''}`;
+    `;
 }
 
 function flattenSchema(schema, name, depth, requiredList, rows) {
@@ -577,7 +604,8 @@ function flattenSchema(schema, name, depth, requiredList, rows) {
             desc: field.description,
             required: isRequired,
             depth: depth,
-            hasChildren: (type === 'object' && field.properties)
+            hasChildren: (type === 'object' && field.properties),
+            isInternal: false
         });
         if (type === 'object' && field.properties) {
             flattenSchema(field, key, depth + 1, field.required || [], rows);
