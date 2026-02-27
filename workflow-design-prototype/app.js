@@ -317,6 +317,8 @@ if (fileInput) {
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) handleFile(file);
+        // Reset file input so same file can be uploaded again if needed
+        e.target.value = '';
     });
 }
 
@@ -353,10 +355,46 @@ function handleFile(file) {
 function resetSchema() {
     document.getElementById('schema-tbody').innerHTML = '';
     document.getElementById('file-input').value = '';
+    document.getElementById('schema-paste-area').value = '';
     eventTypes = [];
     renderEventTypes();
     document.getElementById('schema-table-wrapper').style.display = 'none';
-    document.getElementById('drop-zone').style.display = 'block';
+    document.getElementById('schema-input-card').style.display = 'block';
+}
+
+function setSchemaInputMode(mode) {
+    const uploadBtn = document.getElementById('toggle-upload');
+    const pasteBtn = document.getElementById('toggle-paste');
+    const uploadMode = document.getElementById('upload-mode');
+    const pasteMode = document.getElementById('paste-mode');
+
+    if (mode === 'upload') {
+        uploadBtn.classList.add('active');
+        pasteBtn.classList.remove('active');
+        uploadMode.style.display = 'block';
+        pasteMode.style.display = 'none';
+    } else {
+        uploadBtn.classList.remove('active');
+        pasteBtn.classList.add('active');
+        uploadMode.style.display = 'none';
+        pasteMode.style.display = 'block';
+    }
+}
+
+function handlePasteSchema() {
+    const pasteArea = document.getElementById('schema-paste-area');
+    const content = pasteArea.value.trim();
+    if (!content) {
+        alert('Please paste JSON schema content first');
+        return;
+    }
+
+    try {
+        const schema = JSON.parse(content);
+        processSchema(schema);
+    } catch (err) {
+        alert('Invalid JSON content. Please check your schema.');
+    }
 }
 
 function toggleExclusive(checkbox, type) {
@@ -484,7 +522,7 @@ function processSchema(schema) {
 
     tbody.innerHTML = '';
     document.getElementById('schema-table-wrapper').style.display = 'block';
-    document.getElementById('drop-zone').style.display = 'none';
+    document.getElementById('schema-input-card').style.display = 'none';
 
     const eventNameInput = document.getElementById('event-name-input');
     eventNameInput.value = schema.title || schema.$id?.split('/').pop().replace('.json', '') || '';
