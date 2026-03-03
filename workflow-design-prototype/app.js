@@ -69,7 +69,6 @@ let eventTypes = [];
 let generatedFiles = {}; // Stores content for preview
 let currentPreviewFile = 'spec.json';
 let permissions = {
-    global: [], // Each item: { email: '...', type: 'user' | 'group' }
     test: [],
     live: [],
     drtest: [],
@@ -106,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    setupPermissionInput('add-permission-global', 'global');
     setupPermissionInput('add-permission-test', 'test');
     setupPermissionInput('add-permission-live', 'live');
     setupPermissionInput('add-permission-drtest', 'drtest');
@@ -448,27 +446,6 @@ function renderEventTypes() {
 }
 
 // --- Permissions Management ---
-function togglePermissionSync() {
-    const isSynced = document.getElementById('sync-permissions').checked;
-    const globalArea = document.getElementById('global-permission-area');
-    const envArea = document.getElementById('env-specific-permission-area');
-
-    if (isSynced) {
-        globalArea.style.display = 'block';
-        envArea.classList.remove('visible');
-    } else {
-        globalArea.style.display = 'none';
-        envArea.classList.add('visible');
-
-        if (permissions.test.length === 0 && permissions.global.length > 0) {
-            ['test', 'live', 'drtest', 'drlive'].forEach(env => {
-                permissions[env] = [...permissions.global.map(p => ({ ...p }))];
-                renderPermissions(env);
-            });
-        }
-    }
-}
-
 function addPermission(env) {
     const input = document.getElementById(`add-permission-${env}`);
     const typeSelect = document.getElementById(`type-${env}`);

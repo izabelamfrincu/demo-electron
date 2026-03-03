@@ -569,7 +569,7 @@ input:checked+.slider:before {
 }
 
 .env-specific-config {
-    display: none;
+    display: block;
 }
 
 .env-specific-config.visible {

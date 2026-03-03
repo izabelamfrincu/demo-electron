@@ -309,31 +309,8 @@
                             addresses for permission groups or individual users who can access this product.</p>
                     </div>
 
-                    <div class="permission-toggle-container">
-                        <label class="switch">
-                            <input type="checkbox" id="sync-permissions" checked onchange="togglePermissionSync()">
-                            <span class="slider"></span>
-                        </label>
-                        <span style="font-size: 0.8125rem; font-weight: 500; color: var(--text-main);">Same
-                            permissions for all environments</span>
-                    </div>
-
-                    <!-- Global Permission Input -->
-                    <div id="global-permission-area">
-                        <label class="env-label mandatory">Permissions (Groups/Users)</label>
-                        <div id="permissions-global-list" class="tag-container" style="margin-bottom: 8px;"></div>
-                        <div class="permission-input-wrapper">
-                            <select id="type-global" class="permission-type-select">
-                                <option value="user">User</option>
-                                <option value="group">Group</option>
-                            </select>
-                            <input type="text" id="add-permission-global" class="add-tag-input"
-                                placeholder="Type email and press Enter...">
-                        </div>
-                    </div>
-
                     <!-- Environment Specific Permission Inputs -->
-                    <div id="env-specific-permission-area" class="env-specific-config">
+                    <div id="env-specific-permission-area" class="env-specific-config visible">
                         <div class="permission-grid split">
                             <div class="env-input-group">
                                 <label class="env-label mandatory">Test Permissions</label>
